@@ -24,7 +24,7 @@ module load r-4.0.4-gcc-10.2.0-python3-dghog6f
 
 
 
-## Future with for loop
+## For-loop Example
 ``` R 
 # Load the package 
 library(future)
@@ -108,7 +108,7 @@ t2 - t1
 
 
 
-## Using future with tidyverse via the furrr package
+## Tidyverse example
 
 ``` R
 library(future) # needed for parallelization
@@ -146,7 +146,7 @@ t2 - t1
 
 ```
 
-## Re-running purrr iteration using furrr package in parallel
+## Tidyverse in parallel
 ``` R
 # using furrr package
 
@@ -179,7 +179,7 @@ t2 - t1
 
 
 
-## submitting jobs across muliple nodes 
+## Bayesian example using multiple nodes
 
 
 ``` R
@@ -236,15 +236,12 @@ y <- value(y)
 
 t2 <- proc.time()
 t2 - t1
-# done!
+```
 
 
 
-
-
-
-
-
+## Submitting iterations to separate jobs
+``` R
 # set up that it will submit pbs scripts for each model
 plan(batchtools_torque)
 

@@ -30,6 +30,7 @@ module load r-4.0.4-gcc-10.2.0-python3-dghog6f
 library(future)
 
 # custom function that waits a second, and then prints current step value
+# will loop through this function as an example
 
 slow_function <- function(step){
   
@@ -41,6 +42,64 @@ slow_function <- function(step){
 }
 
 
+
+#### running loop in serial ####
+# timestampe before loop 
+t1 <- proc.time()
+# pre-allocate output 
+output <- rep(NA, 50)
+
+# for loop where it gets increasingly slower
+for (i in 1:50){
+  output[i] <- slow_function(i)
+
+}
+output
+
+# timestampe after loop 
+t2 <- proc.time()
+
+# length of time
+t2 - t1
+
+ #  user   system  elapsed 
+ #  0.038  0.005   50.098 
+
+
+
+#### rerunning loop in parallel using all available cores ####
+# rewrite loop so it works with future:
+output <- list()
+
+# going to send iterations to each of the 3 cores
+plan(multicore)
+
+t1 <- proc.time()
+# for loop where it gets increasingly slower
+for (i in 1:50){
+  # writing each iteration code to y 
+  
+  output[[i]] <- future(
+    # but code for each iteration with curly brackets
+    {slow_function(i)}
+  ) 
+}
+
+# evaluate, distribute each iteration here 
+y <- value(y)
+unlist(output)
+# ouput is here
+
+
+# timestampe after loop 
+t2 <- proc.time()
+
+# length of time
+t2 - t1
+
+
+ #  user  system  elapsed 
+ #  1.694  1.661  12.014 
 ```
 
 
@@ -126,7 +185,7 @@ library(future.batchtools) # needed to submit pbs scripts
 
 
 # bring in data for model
-load(hmsc_setup.RData)
+load("hmsc_setup.RData")
 
 
 # Setting up the model
@@ -145,7 +204,39 @@ m = Hmsc(Y=Y, XData = XData, XFormula=XFormula,
 # parameters
 nChains = 4
 nParallel = 4 
-samples = 300
+samples = 100
+
+
+
+# set up that it will submit pbs scripts for each model
+plan(sequential)
+
+y <- list()
+t1 <- proc.time()
+# running 4 models, each with a different thinning value
+for (thin in c(1,5,10,25)){
+  y[[thin]] <- future({
+  transient = 50*thin
+  m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                 nChains = 4, initPar = "fixed effects",
+                 nParallel = nParallel)
+                 
+  # write model outputs to file               
+  filename=file.path(paste0("Big_model_torque_chains_",as.character(nChains),"_samples_",as.character(samples),"_thin_",as.character(thin)))
+  save(m,file=filename)
+  }, seed = TRUE)
+}
+# evaluate expression
+y <- value(y) 
+
+t2 <- proc.time()
+t2 - t1
+# done!
+
+
+
+
+
 
 
 
@@ -169,8 +260,6 @@ for (thin in c(1,5,10,25)){
 }
 # evaluate expression
 y <- value(y) 
-
-
 
 ```
 

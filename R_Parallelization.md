@@ -67,7 +67,7 @@ t2 - t1
 
 ```
 
-## rerunning for-loop in parallel
+## Rerunning for-loop in parallel
 ``` R
 #### rerunning loop in parallel using all available cores ####
 # rewrite loop so it works with future:

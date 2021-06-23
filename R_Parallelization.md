@@ -65,8 +65,10 @@ t2 - t1
  #  user   system  elapsed 
  #  0.038  0.005   50.098 
 
+```
 
-
+## rerunning for-loop in parallel
+``` R
 #### rerunning loop in parallel using all available cores ####
 # rewrite loop so it works with future:
 output <- list()
@@ -142,7 +144,10 @@ t2 - t1
  #  user  system  elapsed 
  #  0.547  0.042  29.058 
 
+```
 
+## Re-running purrr iteration using furrr package in parallel
+``` R
 # using furrr package
 
 # double check you have multiple cores available
